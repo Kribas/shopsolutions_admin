@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shopsolutions_admin/screens/add_product.dart';
 import '../db/category.dart';
 import '../db/brand.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 enum Page { dashboard, manage }
 
@@ -12,62 +12,60 @@ class Admin extends StatefulWidget {
 }
 
 class _AdminState extends State<Admin> {
-
   Page _selectedPage = Page.dashboard;
   MaterialColor active = Colors.red;
   MaterialColor notActive = Colors.grey;
   TextEditingController categoryController = TextEditingController();
   TextEditingController brandController = TextEditingController();
   GlobalKey<FormState> _categoryFormKey = GlobalKey();
-  GlobalKey<FormState> _brandFromKey = GlobalKey();
+  GlobalKey<FormState> _brandFormKey = GlobalKey();
   BrandService _brandService = BrandService();
   CategoryService _categoryService = CategoryService();
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Expanded(
-                child: FlatButton.icon(onPressed: () {
-                  setState(() {
-                    _selectedPage = Page.dashboard;
-                  });
-                },
-                    icon: Icon(Icons.dashboard,
-                    color: _selectedPage == Page.dashboard ? active : notActive,
-                    ),
-                    label: Text('Dashboard'))),
-
-            Expanded(
-                child: FlatButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _selectedPage = Page.manage;
-                      });
-                    },
-                    icon: Icon(
-                      Icons.sort,
-                      color: _selectedPage == Page.manage ? active: notActive,
-
-                    ),
-                    label: Text('Manage'))),
-          ],
+        appBar: AppBar(
+          title: Row(
+            children: <Widget>[
+              Expanded(
+                  child: FlatButton.icon(
+                      onPressed: () {
+                        setState(() => _selectedPage = Page.dashboard);
+                      },
+                      icon: Icon(
+                        Icons.dashboard,
+                        color: _selectedPage == Page.dashboard
+                            ? active
+                            : notActive,
+                      ),
+                      label: Text('Dashboard'))),
+              Expanded(
+                  child: FlatButton.icon(
+                      onPressed: () {
+                        setState(() => _selectedPage = Page.manage);
+                      },
+                      icon: Icon(
+                        Icons.sort,
+                        color:
+                        _selectedPage == Page.manage ? active : notActive,
+                      ),
+                      label: Text('Manage'))),
+            ],
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.white,
         ),
-        elevation: 0.0,
-        backgroundColor: Colors.white,
-      ),
-      body: _loadScreen(),
-    );
+        body: _loadScreen());
   }
 
   Widget _loadScreen() {
-    switch(_selectedPage) {
+    switch (_selectedPage) {
       case Page.dashboard:
         return Column(
-          children: [
+          children: <Widget>[
             ListTile(
               subtitle: FlatButton.icon(
                 onPressed: null,
@@ -194,7 +192,7 @@ class _AdminState extends State<Admin> {
               leading: Icon(Icons.add),
               title: Text("Add product"),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AddProduct()));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => AddProduct()));
               },
             ),
             Divider(),
@@ -229,7 +227,9 @@ class _AdminState extends State<Admin> {
             ListTile(
               leading: Icon(Icons.library_books),
               title: Text("brand list"),
-              onTap: () {},
+              onTap: () {
+                _brandService.getBrands();
+              },
             ),
             Divider(),
           ],
@@ -241,51 +241,49 @@ class _AdminState extends State<Admin> {
   }
 
   void _categoryAlert() {
-    var alert = AlertDialog(
+    var alert = new AlertDialog(
       content: Form(
         key: _categoryFormKey,
         child: TextFormField(
           controller: categoryController,
-          validator: (value) {
-            if(value.isEmpty) {
-              return 'Category cannot be empty';
-            }else {
-              return null;
+          validator: (value){
+            if(value.isEmpty){
+              return 'category cannot be empty';
             }
           },
           decoration: InputDecoration(
-            hintText: "add category"
+              hintText: "add category"
           ),
         ),
       ),
-      actions: [
-        FlatButton(onPressed: () {
-          if(categoryController.text != null) {
+      actions: <Widget>[
+        FlatButton(onPressed: (){
+          if(categoryController.text != null){
             _categoryService.createCategory(categoryController.text);
           }
-          Fluttertoast.showToast(msg: 'category created');
+//          Fluttertoast.showToast(msg: 'category created');
           Navigator.pop(context);
-        },
+        }, child: Text('ADD')),
+        FlatButton(onPressed: (){
+          Navigator.pop(context);
+        }, child: Text('CANCEL')),
 
-            child: Text('ADD')),
-
-        FlatButton(onPressed: () {},
-            child: Text('CANCEL')),
       ],
     );
+
     showDialog(context: context, builder: (_) => alert);
   }
 
   void _brandAlert() {
-    var alert = AlertDialog(
+    var alert = new AlertDialog(
       content: Form(
-        key: _brandFromKey,
+        key: _brandFormKey,
         child: TextFormField(
           controller: brandController,
-          validator: (value) {
-            if(value.isEmpty) {
-              return 'Category cannot be empty';
-            }else {
+          validator: (value){
+            if(value.isEmpty){
+              return 'category cannot be empty';
+            } else {
               return null;
             }
           },
@@ -294,21 +292,21 @@ class _AdminState extends State<Admin> {
           ),
         ),
       ),
-      actions: [
-        FlatButton(onPressed: () {
-          if(brandController.text != null) {
+      actions: <Widget>[
+        FlatButton(onPressed: (){
+          if(brandController.text != null){
             _brandService.createBrand(brandController.text);
           }
-          Fluttertoast.showToast(msg: 'brand created');
+//          Fluttertoast.showToast(msg: 'brand added');
           Navigator.pop(context);
-        },
+        }, child: Text('ADD')),
+        FlatButton(onPressed: (){
+          Navigator.pop(context);
+        }, child: Text('CANCEL')),
 
-            child: Text('ADD')),
-
-        FlatButton(onPressed: () {},
-            child: Text('CANCEL')),
       ],
     );
+
     showDialog(context: context, builder: (_) => alert);
   }
 }
