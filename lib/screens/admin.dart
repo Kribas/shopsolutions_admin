@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shopsolutions_admin/screens/add_product.dart';
+import '../db/category.dart';
+import '../db/brand.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 enum Page { dashboard, manage }
 
@@ -12,6 +16,13 @@ class _AdminState extends State<Admin> {
   Page _selectedPage = Page.dashboard;
   MaterialColor active = Colors.red;
   MaterialColor notActive = Colors.grey;
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController brandController = TextEditingController();
+  GlobalKey<FormState> _categoryFormKey = GlobalKey();
+  GlobalKey<FormState> _brandFromKey = GlobalKey();
+  BrandService _brandService = BrandService();
+  CategoryService _categoryService = CategoryService();
+
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +186,129 @@ class _AdminState extends State<Admin> {
             ),
           ],
         );
+        break;
+      case Page.manage:
+        return ListView(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text("Add product"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AddProduct()));
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.change_history),
+              title: Text("Products list"),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.add_circle),
+              title: Text("Add category"),
+              onTap: () {
+                _categoryAlert();
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.category),
+              title: Text("Category list"),
+              onTap: () {},
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.add_circle_outline),
+              title: Text("Add brand"),
+              onTap: () {
+                _brandAlert();
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.library_books),
+              title: Text("brand list"),
+              onTap: () {},
+            ),
+            Divider(),
+          ],
+        );
+        break;
+      default:
+        return Container();
     }
+  }
+
+  void _categoryAlert() {
+    var alert = AlertDialog(
+      content: Form(
+        key: _categoryFormKey,
+        child: TextFormField(
+          controller: categoryController,
+          validator: (value) {
+            if(value.isEmpty) {
+              return 'Category cannot be empty';
+            }else {
+              return null;
+            }
+          },
+          decoration: InputDecoration(
+            hintText: "add category"
+          ),
+        ),
+      ),
+      actions: [
+        FlatButton(onPressed: () {
+          if(categoryController.text != null) {
+            _categoryService.createCategory(categoryController.text);
+          }
+          Fluttertoast.showToast(msg: 'category created');
+          Navigator.pop(context);
+        },
+
+            child: Text('ADD')),
+
+        FlatButton(onPressed: () {},
+            child: Text('CANCEL')),
+      ],
+    );
+    showDialog(context: context, builder: (_) => alert);
+  }
+
+  void _brandAlert() {
+    var alert = AlertDialog(
+      content: Form(
+        key: _brandFromKey,
+        child: TextFormField(
+          controller: brandController,
+          validator: (value) {
+            if(value.isEmpty) {
+              return 'Category cannot be empty';
+            }else {
+              return null;
+            }
+          },
+          decoration: InputDecoration(
+              hintText: "add brand"
+          ),
+        ),
+      ),
+      actions: [
+        FlatButton(onPressed: () {
+          if(brandController.text != null) {
+            _brandService.createBrand(brandController.text);
+          }
+          Fluttertoast.showToast(msg: 'brand created');
+          Navigator.pop(context);
+        },
+
+            child: Text('ADD')),
+
+        FlatButton(onPressed: () {},
+            child: Text('CANCEL')),
+      ],
+    );
+    showDialog(context: context, builder: (_) => alert);
   }
 }
